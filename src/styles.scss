@@ -1,10 +1,10 @@
+/* Importing Bootstrap SCSS file. */
+// @import "bootstrap/scss/bootstrap";
 /* You can add global styles to this file, and also import other style files */
-html {
-  background: rgb(80, 75, 75);
-  color: rgb(206, 201, 201);
+
+body {
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  background: rgb(80, 75, 75);
+  color: rgb(206, 201, 201);
 }
-
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';

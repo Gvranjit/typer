@@ -1,0 +1,47 @@
+<div class="container text-center h-100">
+  <div class="row">
+    <div class="col-xs-12"></div>
+  </div>
+  <hr />
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-xs-12">
+        <span
+          *ngFor="let wordData of originalTextArrayWithStatus; index as i"
+          [ngClass]="{
+            'text-success':
+              i !== lastTypedWord.index + 1 &&
+              wordData.complete &&
+              wordData.correct,
+            'text-danger':
+              i !== lastTypedWord.index + 1 &&
+              wordData.complete &&
+              !wordData.correct
+          }"
+        >
+          <span *ngIf="i !== lastTypedWord.index + 1">
+            {{ wordData.word }}
+          </span>
+          <span
+            *ngIf="i == lastTypedWord.index + 1"
+            [ngClass]="{
+              'text-success': correct && inputText.length > 0,
+              'text-danger': !correct
+            }"
+          >
+            {{ inputText }}</span
+          >
+          <span *ngIf="i == lastTypedWord.index + 1"
+            >{{ wordData.word.substring(inputText.length) }}
+          </span>
+        </span>
+      </div>
+      <input
+        type="text"
+        class="form-control"
+        (input)="onTextInput($event)"
+        [value]="inputText"
+      />
+    </div>
+  </div>
+</div>
