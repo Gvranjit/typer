@@ -1,37 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { ScoreService } from '../shared/score.service';
 
 @Component({
   selector: 'app-typing-area',
   templateUrl: './typing-area.component.html',
   styleUrls: ['./typing-area.component.scss'],
 })
-export class TypingAreaComponent implements OnInit {
-  constructor() {}
-
-  public originalTextArrayWithStatus: {
+export class TypingAreaComponent implements OnInit, AfterViewInit {
+  constructor(private scoreService: ScoreService) {}
+  originalTextArrayWithStatus: {
     word: string;
     complete: boolean;
     correct: boolean;
   }[] = [];
+  @ViewChild('inputField', { static: true }) inputField?: ElementRef;
 
   inputText: string = '';
   wordsList: string[] = [];
   lastTypedWord = { index: -1 };
   correct = true;
+  wpm = 0;
 
   ngOnInit(): void {
-    const originalText: string = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Amet consectetur
-      adipiscing elit duis tristique sollicitudin nibh. Tincidunt praesent
-      semper feugiat nibh sed. Arcu odio ut sem nulla pharetra. Congue eu
-      consequat ac felis donec et odio. Dignissim enim sit amet venenatis urna.
-      Ultrices sagittis orci a scelerisque purus semper eget. Lectus arcu
-      bibendum at varius vel pharetra. Neque viverra justo nec ultrices dui
-      sapien. Vitae ultricies leo integer malesuada nunc vel risus. Velit
-      scelerisque in dictum non consectetur a erat nam. Pulvinar sapien et
-      ligula ullamcorper malesuada. Elementum facilisis leo vel fringilla est.
-      Porta lorem mollis aliquam ut porttitor leo. Tincidunt ornare massa eget
-      egestas purus viverra accumsan in nisl. Libero justo laoreet sit amet.`;
+    const originalText: string = `Then came the night of the first falling star. It was seen early in the morning, rushing over Winchester eastward, a line of flame high in the atmosphere. Hundreds must have seen it and taken it for an ordinary falling star. It seemed that it fell to earth about one hundred miles east of him.`;
     const originalTextArray = originalText.split(/\s/).filter((eachWord) => {
       return eachWord != '';
     });
@@ -41,18 +38,21 @@ export class TypingAreaComponent implements OnInit {
       correct: false,
     }));
   }
-
+  ngAfterViewInit() {
+    console.log('afterviewinit', this.inputField?.nativeElement.value);
+  }
+  focusTextBox() {
+    this.inputField?.nativeElement.focus();
+  }
   onTextInput(e: Event) {
     const element = e.target as HTMLInputElement;
     const text = element.value;
     this.inputText = text;
-
+    if (this.lastTypedWord.index === -1) {
+      this.scoreService.startTyping();
+    }
     //first check if the typed text matches the next text in array
-    console.log(
-      this.originalTextArrayWithStatus[
-        this.lastTypedWord.index + 1
-      ].word.substring(0, text.length)
-    );
+
     if (
       this.originalTextArrayWithStatus[this.lastTypedWord.index + 1].word.slice(
         0,
@@ -67,9 +67,12 @@ export class TypingAreaComponent implements OnInit {
     if (text.slice(-1) === ' ' && text.slice(-2, -1).match(/\S/)) {
       const actualInput = text.substring(0, text.length - 1); // removig the space at the end
       if (text.length > 1) {
-        console.log('SPACE DETEcted');
+        console.log('******************** Space Detected ***************');
         //pushing the word for later use
         this.wordsList.push(actualInput);
+        //finish the word speed cycle
+        this.wpm = this.scoreService.finishWord(this.wordsList.length).wpm;
+
         //pushing the word status to the source word array list
         this.originalTextArrayWithStatus[this.lastTypedWord.index + 1] = {
           ...this.originalTextArrayWithStatus[this.lastTypedWord.index + 1],
@@ -83,7 +86,6 @@ export class TypingAreaComponent implements OnInit {
       }
       this.inputText = '';
       this.lastTypedWord.index += 1;
-      console.log(this);
     }
   }
 }
